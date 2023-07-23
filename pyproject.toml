@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "embit"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "liana-rpc"
+version = "0.0.1"
+description = "RPC client for connect to Liana daemon (lianad)"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+  {name = "darosior", email = "darosior@protonmail.com"},
+  {name = "pythcoiner", email = "pythcoiner@proton.me"},
+]
+requires-python = ">=3.9"
+keywords = ["bitcoin", "liana", "lianad", "rpc"]
+dependencies = [
+]
+
+classifiers = [
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[project.urls]
+Homepage = "https://wizardsardine.com/liana"

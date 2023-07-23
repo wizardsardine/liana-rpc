@@ -1,0 +1,10 @@
+.pytest_cache/
+dist/
+.idea/
+*.egg-info
+tests/.pytest_cache
+.tox/
+__pycache__/
+liana_rpc/__pycache__/
+liana_rpc/utils/__pycache__/
+tests/__pycache__/
