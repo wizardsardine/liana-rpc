@@ -9,6 +9,9 @@ log = logging.getLogger()
 
 
 def get_liana_instances():
+    """
+    return a list of lianad running sockets
+    """
     command = 'ps -aux | grep lianad'
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
     if result.returncode == 0:
@@ -26,6 +29,13 @@ def get_liana_instances():
 
 
 def psbt_to_txid(psbt):
+    """
+    Extract txid from a Base64 PSBT using bitcoin-core trough a "bitcoin-cli decodepsbt" call
+    
+    :param psbt: Base64 encoded psbt
+    
+    return txid in hexadecimal encoded format
+    """
     command = f"bitcoin-cli decodepsbt {psbt}"
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
     if result.returncode == 0:
@@ -37,6 +47,13 @@ def psbt_to_txid(psbt):
    
     
 def rawtx_to_txid(rawtx):
+    """
+    Extract txid from a raw transaction (hex format) using bitcoin-core trough a "bitcoin-cli decoderawtransaction" call
+
+    :param psbt: raw tx in hexadecimal format
+
+    return txid in hexadecimal encoded format
+    """
     command = f"bitcoin-cli decoderawtransaction {rawtx}"
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
     if result.returncode == 0:
@@ -56,7 +73,9 @@ class LianaRPC:
     def __init__(self, path=None):
         """
         :param path: the path to the socket file (usually  ~/.liana/<chain>/lianad_rpc), lianad might to be already
-        running before start LianaRPC instance.
+        running before start LianaRPC instance. If only one instance of lianad is runnig this arg is optionnal, __init__
+        function should automaticaly find the socket path, else if several instances of lianad running, you might specify
+        the socket path.
         """
         
         logger = logging.getLogger()
@@ -137,9 +156,9 @@ class LianaRPC:
                 unspent_coins.append(i)
         return unspent_coins
     
-    def list_spend_coins(self):
+    def list_spent_coins(self):
         """
-        Return the list of spend coins
+        Return the list of spent coins
         """
         ret = self.list_coins()
         if type(ret) is not list:
@@ -199,6 +218,11 @@ class LianaRPC:
             return ret
     
     def del_psbt(self, txid: str):
+        """
+        Delete a PSBT stored in lianad DB given is txid
+        
+        :param txid: Transaction id in hexadecimal format
+        """
         ret = self.rpc.call('delspendtx', {'txid': txid})
         if ret == {}:
             return {'ok': True}
@@ -207,7 +231,12 @@ class LianaRPC:
         else:
             return ret
     
-    def broadcast_psbt(self, txid):
+    def broadcast_psbt(self, txid: str):
+        """
+        Finalize a PSBT stored in liana DB, and broadcast it
+
+        :param txid: Transaction id in hexadecimal format
+        """
         ret = self.rpc.call('broadcastspend', {'txid': txid})
         if ret == {}:
             return {'ok': True}
@@ -216,7 +245,12 @@ class LianaRPC:
         else:
             return ret
     
-    def start_rescan(self, timestamp):
+    def start_rescan(self, timestamp: int):
+        """
+        Start rescanning the block chain from a given date
+        
+        :param timestamp: Date to start rescanning from, as a UNIX timestamp
+        """
         ret = self.rpc.call('startrescan', {'timestamp': timestamp})
         if 'error' in ret.keys() and ret['error']['message'] == 'There is already a rescan ongoing. Please wait for it to complete first.':
             return {'rescanning': True}
@@ -224,8 +258,18 @@ class LianaRPC:
             return {}
     
     def list_confirmed_tx(self, start: int = None, end: int = None, limit: int = 100):
+        """
+        Retrieves a paginated and ordered list of transactions that were confirmed within a given time window.
+        Confirmation time is based on the timestamp of blocks.
+        
+        :param start: Inclusive lower bound of the time window
+        :param end: Inclusive upper bound of the time window
+        :param limit: Maximum number of transactions to retrieve
+        
+        return a list of confirmed transactions resources
+        """
         if not start:
-            start = 1231006505
+            start = 1231006505  # genesis block
             
         if not end:
             end = round(time.time())
@@ -244,9 +288,11 @@ class LianaRPC:
         else:
             return ret
         
-    def fetch_tx(self, txid):
+    def fetch_tx(self, txid: str):
         """
         Retrieve a single transaction given its txid.
+        
+        :param txid: Transaction id in hexadecimal format
         """
         ret = self.list_txs([txid])
         if type(ret) is list:
@@ -259,7 +305,10 @@ class LianaRPC:
     def list_txs(self, txs: []):
         """
         Retrieves transactions with the given txids.
-        :param txs: List of txids in the form of [<txid>, <txid>, <txid>,]
+        
+        :param txs: List of txids in hexadecimal format in the form of [<txid>, <txid>, <txid>,]
+        
+        return a List of transactions resources
         """
         
         ret = self.rpc.call('listtransactions', {'txids': txs})
@@ -270,7 +319,22 @@ class LianaRPC:
         else:
             return ret
     
-    def create_recovery_psbt(self, address, feerate, timelock=0):
+    def create_recovery_psbt(self, address: str, feerate: int, timelock: int = 0):
+        """
+        Create a transaction that sweeps all coins for which a timelocked recovery path is currently available to a
+        provided address with the provided feerate.
+        The timelock parameter can be used to specify which recovery path to use. By default, we'll use the first
+        recovery path available. If created for a later timelock a recovery transaction may be satisfied using an
+        earlier timelock but not the opposite.
+        Due to the fact coins are generally received at different block heights, not all coins may be spendable through
+        a single recovery path at the same time.
+        This command will error if no such coins are available or the sum of their value is not enough to cover the
+        requested feerate.
+        
+        :param address: The Bitcoin address to sweep the coins to, in str format
+        :param feerate: Target feerate for the transaction, in satoshis per virtual byte in int foramt.
+        :param timelock: Recovery path to be used, identified by the number of blocks after which it is available, in int format.
+        """
         params = {
             'address': address,
             'feerate': feerate,
