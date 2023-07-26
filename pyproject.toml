@@ -1,16 +1,15 @@
 [build-system]
-requires = ["setuptools", "embit"]
+requires = ["setuptools", "wheel" ]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "liana-rpc"
 version = "0.0.1"
 description = "RPC client for connect to Liana daemon (lianad)"
-readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-  {name = "darosior", email = "darosior@protonmail.com"},
   {name = "pythcoiner", email = "pythcoiner@proton.me"},
+  {name = "darosior", email = "darosior@protonmail.com"},
 ]
 requires-python = ">=3.9"
 keywords = ["bitcoin", "liana", "lianad", "rpc"]

@@ -1,11 +1,11 @@
-## Requirements for tests
+## Requirements for tests/build/upload
 
 To run the tests you should have a running bitcoind and a runnind lianad, if lianad running, it will be automaticaly 
 detected.
 
-You need to install `embit`, `tox` and `pytest` installed prior to run tests:
+You need to install `twine`, `tox` and `pytest` installed prior to run tests then build and uplooad:
 ```shell
-pip install embit tox pytest
+pip install tox pytest twine
 ```
 tox will allow you to run the test on different python versions
 
@@ -36,3 +36,15 @@ python3 -m build
 ```
 
 packages will be in `dist/` folder
+
+## upload on pypi
+
+Just run:
+```shell
+python3 -m twine upload dist/*
+```
+
+If you want to upload on the test repository of pypi:
+```shell
+python3 -m twine  upload --repository testpypi dist/*
+```
