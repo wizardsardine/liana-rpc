@@ -28,7 +28,7 @@ def get_liana_instances():
     return []
 
 
-def psbt_to_txid(psbt):
+def psbt_to_txid(psbt, network='main'):
     """
     Extract txid from a Base64 PSBT using bitcoin-core trough a "bitcoin-cli decodepsbt" call
     
@@ -36,7 +36,11 @@ def psbt_to_txid(psbt):
     
     return txid in hexadecimal encoded format
     """
-    command = f"bitcoin-cli decodepsbt {psbt}"
+    if network == 'main':
+        network = ''
+    elif network in ['testnet', 'regtest', 'signet']:
+        network = f'-{network}'
+    command = f"bitcoin-cli {network} decodepsbt {psbt}"
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
     if result.returncode == 0:
         txid = json.loads(result.stdout)['tx']['txid']
@@ -46,7 +50,7 @@ def psbt_to_txid(psbt):
         return data
    
     
-def rawtx_to_txid(rawtx):
+def rawtx_to_txid(rawtx, network='main'):
     """
     Extract txid from a raw transaction (hex format) using bitcoin-core trough a "bitcoin-cli decoderawtransaction" call
 
@@ -54,7 +58,11 @@ def rawtx_to_txid(rawtx):
 
     return txid in hexadecimal encoded format
     """
-    command = f"bitcoin-cli decoderawtransaction {rawtx}"
+    if network == 'main':
+        network = ''
+    elif network in ['testnet', 'regtest', 'signet']:
+        network = f'-{network}'
+    command = f"bitcoin-cli {network} decoderawtransaction {rawtx}"
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
     if result.returncode == 0:
         txid = json.loads(result.stdout)['txid']
@@ -64,7 +72,7 @@ def rawtx_to_txid(rawtx):
         return data
     
     
-def decode_tx(rawtx):
+def decode_tx(rawtx, network='main'):
     """
     Decode a raw transaction (hex format) using bitcoin-core trough a "bitcoin-cli decoderawtransaction" call
 
@@ -72,7 +80,11 @@ def decode_tx(rawtx):
 
     return a decoded tx
     """
-    command = f"bitcoin-cli decoderawtransaction {rawtx}"
+    if network == 'main':
+        network = ''
+    elif network in ['testnet', 'regtest', 'signet']:
+        network = f'-{network}'
+    command = f"bitcoin-cli {network} decoderawtransaction {rawtx}"
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
     if result.returncode == 0:
         tx = json.loads(result.stdout)
