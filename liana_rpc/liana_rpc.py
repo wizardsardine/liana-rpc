@@ -50,7 +50,7 @@ def rawtx_to_txid(rawtx):
     """
     Extract txid from a raw transaction (hex format) using bitcoin-core trough a "bitcoin-cli decoderawtransaction" call
 
-    :param psbt: raw tx in hexadecimal format
+    :param rawtx: raw tx in hexadecimal format
 
     return txid in hexadecimal encoded format
     """
@@ -59,6 +59,24 @@ def rawtx_to_txid(rawtx):
     if result.returncode == 0:
         txid = json.loads(result.stdout)['txid']
         return txid
+    else:
+        data = {'error': f'Cannot decode rawtx: {rawtx}'}
+        return data
+    
+    
+def decode_tx(rawtx):
+    """
+    Decode a raw transaction (hex format) using bitcoin-core trough a "bitcoin-cli decoderawtransaction" call
+
+    :param rawtx: raw tx in hexadecimal format
+
+    return a decoded tx
+    """
+    command = f"bitcoin-cli decoderawtransaction {rawtx}"
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+    if result.returncode == 0:
+        tx = json.loads(result.stdout)
+        return tx
     else:
         data = {'error': f'Cannot decode rawtx: {rawtx}'}
         return data
