@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "liana-rpc"
-version = "0.0.2"
+version = "0.0.3"
 description = "RPC client for connect to Liana daemon (lianad)"
 license = {file = "LICENSE"}
 authors = [
