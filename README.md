@@ -14,7 +14,7 @@ pip install liana-rpc
 
 ### From Github repo:
 ```shell
-pip install git+https://github.com/pythcoiner/liana-rpc
+pip install git+https://github.com/wizardsardine/liana-rpc
 ```
 
 ## Examples
