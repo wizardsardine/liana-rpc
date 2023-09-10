@@ -40,6 +40,13 @@ def test_get_new_address(liana):
     assert(ret[:4] == 'tb1q')
     
     
+def test_list_addresses(liana):
+    ret = liana.list_addresses(0, 0)
+    assert('change' in ret[0])
+    assert('index' in ret[0])
+    assert('receive' in ret[0])
+    
+    
 def test_list_coins(liana):
     ret = liana.list_coins()
     assert(type(ret) is list)

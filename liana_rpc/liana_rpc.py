@@ -160,6 +160,23 @@ class LianaRPC:
             return {'error': ret['error']}
         else:
             return ret
+        
+    def list_addresses(self, start_index=0, count=0):
+        """
+        List addresses
+        """
+        params = {
+            'start_index': start_index,
+            'count': count,
+
+        }
+        ret = self.rpc.call('listaddresses', params)
+        if 'addresses' in ret.keys():
+            return ret['addresses']
+        elif 'error' in ret.keys():
+            return {'error': ret['error']}
+        else:
+            return ret
 
     def list_coins(self):
         """
